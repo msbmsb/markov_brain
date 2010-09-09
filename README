@@ -1,0 +1,18 @@
+markov_brain is a generic markov chain text generation module in python. 
+It was written as an easy-to-use black box for other applications. 
+
+Required modules:             PyYAML
+Required configuration file:  markov_brain.py
+Required configuration var:   "past_memory": TEXT_FILE_LOCATION
+
+An example usage can be found in test_markov_brain.py. Simply create 
+a new Brain() using the "past_memory" configuration to load any previous 
+knowledge. 
+Adding more 'memory' is done by calling remember(words_list).
+Generating text is done by calling speak_about(subject, max_chars=140).
+
+====
+
+Author:       Mitchell Bowden <mitchellbowden AT gmail DOT com>
+Version:      0.1
+License:      MIT License: http://creativecommons.org/licenses/MIT/

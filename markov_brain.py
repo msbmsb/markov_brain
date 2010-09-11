@@ -60,7 +60,7 @@ class Brain(object):
     try:
       pf = open(parameters, 'rU')
     except IOError:
-      print 'Cannot open parameters file "{0}"'.format(parameters)
+      print 'Cannot open parameters file "%s"' % (parameters)
       sys.exit(1)
     else:
       for line in pf:
@@ -73,7 +73,7 @@ class Brain(object):
     try:
       pm = open(past_memory_file, 'rU')
     except IOError:
-      print 'Cannot open past memory file "{0}"'.format(past_memory_file)
+      print 'Cannot open past memory file "%s"' % (past_memory_file)
       sys.exit(1)
     else:
       return pm.read().split()
@@ -109,7 +109,10 @@ class Brain(object):
       retried = 0
       string_of_single = 0
       while not done and retried < 25:
-        text.append(w0)
+        if text_len == 0:
+          text.append(w0.capitalize())
+        else:
+          text.append(w0)
         text_len += len(w0)
         if text_len > max_chars:
           text.pop()
@@ -126,7 +129,7 @@ class Brain(object):
         w0,w1 = w1, random.choice(nextw_list)
       return self.articulate(' '.join(text))
     else:
-      return 'Sorry, I don\'t know about {0}'.format(subject)
+      return 'Sorry, I don\'t know about %s' % (subject)
 
   def articulate(self, text):
     if text[-1][-1] != ".":

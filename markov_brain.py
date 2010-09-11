@@ -97,39 +97,43 @@ class Brain(object):
     for i in range(len(words) - 2):
       yield(words[i], words[i+1], words[i+2])
 
-  def speak_about(self, subject, max_chars=140):
+  def speak_about(self, subject_str, max_chars=140):
     #...
-    if subject in self.memory:
-      seed = random.choice(self.memory[subject])
-      w0,w1 = subject,seed
-      prevw0,prevw1 = w0,w1
-      text = []
-      text_len = 0
-      done = False
-      retried = 0
-      string_of_single = 0
-      while not done and retried < 25:
-        if text_len == 0:
-          text.append(w0.capitalize())
-        else:
-          text.append(w0)
-        text_len += len(w0)
-        if text_len > max_chars:
-          text.pop()
-          w0,w1 = prevw0, prevw1
-          retried += 1
-        elif text_len == max_chars:
-          done = True
+    subjects = subject_str.split()
+    random.shuffle(subjects)
+    for subject in subjects:
+      if subject in self.memory:
+        seed = random.choice(self.memory[subject])
+        w0,w1 = subject,seed
         prevw0,prevw1 = w0,w1
-        nextw_list = self.memory[(w0,w1)]
-        if nextw_list == 1:
-          string_of_single += 1
-          if string_of_single > 2:
-            nextw_list = self.memory[w1]
-        w0,w1 = w1, random.choice(nextw_list)
-      return self.articulate(' '.join(text))
-    else:
-      return 'Sorry, I don\'t know about %s' % (subject)
+        text = []
+        text_len = 0
+        done = False
+        retried = 0
+        string_of_single = 0
+        while not done and retried < 25:
+          if text_len == 0:
+            text.append(w0.capitalize())
+          else:
+            text.append(w0)
+          text_len += len(w0)
+          if text_len > max_chars:
+            text.pop()
+            w0,w1 = prevw0, prevw1
+            retried += 1
+          elif text_len == max_chars:
+            done = True
+          prevw0,prevw1 = w0,w1
+          nextw_list = self.memory[(w0,w1)]
+          if nextw_list == 1:
+            string_of_single += 1
+            if string_of_single > 2:
+              nextw_list = self.memory[w1]
+          w0,w1 = w1, random.choice(nextw_list)
+        return self.articulate(' '.join(text))
+      else:
+        if len(subjects) < 2:
+          return 'Sorry, I don\'t know about %s' % (subject)
 
   def articulate(self, text):
     if text[-1][-1] != ".":

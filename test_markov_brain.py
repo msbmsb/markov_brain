@@ -25,7 +25,7 @@ def main():
     sys.exit(1)
 
   textgen = markov_brain.Brain()
-  print textgen.speak_about("Dantes")
+  print textgen.speak_about("Dantes test")
 
 if __name__ == '__main__':
   main()

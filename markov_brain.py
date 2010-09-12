@@ -97,6 +97,12 @@ class Brain(object):
     for i in range(len(words) - 2):
       yield(words[i], words[i+1], words[i+2])
 
+  def forget_about(self, word):
+    self.memory.remove(word)
+
+  def forget_everything(self):
+    self.memory = collections.defaultdict(list)
+
   def speak_about(self, subject_str, max_chars=140):
     #...
     subjects = subject_str.split()

@@ -7,8 +7,8 @@ markov_brain is a generic markov chain text generation module in python.
 It was written as an easy-to-use black box for other applications. 
 
 Required modules:             PyYAML
-Required configuration file:  markov_brain.py
-Required configuration var:   "past_memory": TEXT_FILE_LOCATION
+Required configuration file:  markov_brain.yaml
+Optional configuration var:   "past_memory": TEXT_FILE_LOCATION
 
 An example usage can be found in test_markov_brain.py. Simply create 
 a new Brain() using the "past_memory" configuration to load any previous 
@@ -19,7 +19,7 @@ Generating text is done by calling speak_about(subject, max_chars=140).
 Author:       Mitchell Bowden <mitchellbowden AT gmail DOT com>
 Version:      0.1
 License:      MIT License: http://creativecommons.org/licenses/MIT/
-Last Changed: 08 Sep 2010
+Last Changed: 24 Nov 2010
 URL:          http://github.com/msbmsb/markov_brain/
 
 """
@@ -34,15 +34,16 @@ class Brain(object):
     self.memory = collections.defaultdict(list)
     self.parameters = {}
     self.parameters_file = 'markov_brain.yaml'
-    self.load_parameters(self.parameters_file)
-    self.remember(self.load_past_memory(self.get_parameter("past_memory")))
+    if self.load_parameters(self.parameters_file):
+      if self.get_parameter("past_memory"):
+        self.load_past_memory(self.get_parameter("past_memory"))
 
   def load_parameters(self, parameters_file):
     parameters_path = os.path.join(
       os.path.dirname(__file__), parameters_file
     )
     if not os.path.exists(parameters_path):
-      parameters_path = parameters_file
+      return None
     try:
       import yaml
     except (ImportError):
@@ -76,20 +77,37 @@ class Brain(object):
       print 'Cannot open past memory file "%s"' % (past_memory_file)
       sys.exit(1)
     else:
-      return pm.read().split()
+      self.remember(pm.read().split())
 
   def remember(self, words):
     for w0,w1,w2 in self.trigrams(words):
-      self.add_to_memory((w0,w1), w2);
-      self.add_to_memory(w0, w1);
-      self.add_to_memory(w1, w2);
+      self.add_to_memory((w0,w1), w2)
+      self.add_to_memory(w0, w1)
+      self.add_to_memory(w1, w2)
     self.memory[(w0,w1)].append('\n')
 
   def add_to_memory(self, key, val):
-    if key in self.memory:
-      self.memory[key].append(val.strip())
+    if type(val) is list:
+      if key in self.memory:
+        self.memory[key].extend(val)
+      else:
+        self.memory[key] = val
     else:
-      self.memory[key] = [val.strip()]
+      if key in self.memory:
+        self.memory[key].append(val.strip())
+      else:
+        self.memory[key] = [val.strip()]
+
+  def transplant(self, other_brain):
+    self.overwrite(other_brain.memory)
+
+  def overwrite(self, mem):
+    self.forget_everything()
+    self.import_from(mem)
+
+  def import_from(self, mem):
+    for k in mem.keys():
+      self.add_to_memory(k, mem[k])
 
   def trigrams(self, words):
     if len(words) < 3:
@@ -135,7 +153,10 @@ class Brain(object):
             string_of_single += 1
             if string_of_single > 2:
               nextw_list = self.memory[w1]
-          w0,w1 = w1, random.choice(nextw_list)
+          if nextw_list:
+            w0,w1 = w1, random.choice(nextw_list)
+          else:
+            done = True
         return self.articulate(' '.join(text))
       else:
         if len(subjects) < 2:

@@ -80,11 +80,13 @@ class Brain(object):
       self.remember(pm.read().split())
 
   def remember(self, words):
+    w0,w1,w2 = None,None,None
     for w0,w1,w2 in self.trigrams(words):
       self.add_to_memory((w0,w1), w2)
       self.add_to_memory(w0, w1)
       self.add_to_memory(w1, w2)
-    self.memory[(w0,w1)].append('\n')
+    if w0 and w1:
+      self.memory[(w0,w1)].append('\n')
 
   def add_to_memory(self, key, val):
     if type(val) is list:
